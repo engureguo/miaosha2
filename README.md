@@ -111,7 +111,7 @@ logging:
 
 
 
-**两次MD5加密**
+#### **两次MD5加密**
 
 1. 用户端：pass = md5 (明文 + ==固定salt==)            ===>      防止密码在明文中传输
 2. 服务端：pass = md5 (用户输入 + ==随机salt==)    ====>    提高密码安全性，`双重保险`
@@ -226,13 +226,177 @@ create table t_user(
 
 
 
-**逆向工程**
+#### **逆向工程**
 
 mybatis 中的 MBG 逆向工程只能生成 pojo, mapper, mapper.xml
 
+mybatis-plus 是增强版，可以还生成 service, controller, 
+
+> https://mp.baomidou.com/guide/generator.html
+>
+> AutoGenerator 是 MyBatis-Plus 的代码生成器，通过 AutoGenerator 可以快速生成 Entity、Mapper、Mapper XML、Service、Controller 等各个模块的代码，极大的提升了开发效率。
 
 
 
+新创建项目，添加依赖（web、mysql-driver、lombok）：
+
+```xml
+<!--mybatis-plus 依赖-->
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-boot-starter</artifactId>
+    <version>3.4.0</version>
+</dependency>
+
+<!--mybatis-plus-generator代码生成器-->
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-generator</artifactId>
+    <version>3.4.1</version>
+</dependency>
+
+<!--freemarker 模板引擎-->
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+</dependency>
+```
+
+自定义模板：
+
+- 将 `External Libraries` 中 baomidou.generator 依赖中的模板文件拷贝到 templates/ 内，自定义模板
+
+<img src="images/README.assets/image-20210810162231121.png" alt="image-20210810162231121" style="zoom:80%;" />
+
+**使用示例**
+
+```java
+public class CodeGenerator {
+
+    /**
+     * <p>
+     * 读取控制台内容
+     * </p>
+     */
+    public static String scanner(String tip) {
+        Scanner scanner = new Scanner(System.in);
+        StringBuilder help = new StringBuilder();
+        help.append("请输入" + tip + "：");
+        System.out.println(help.toString());
+        if (scanner.hasNext()) {
+            String ipt = scanner.next();
+            if (StringUtils.isNotBlank(ipt)) {
+                return ipt;
+            }
+        }
+        throw new MybatisPlusException("请输入正确的" + tip + "！");
+    }
+
+    public static void main(String[] args) {
+        // 代码生成器
+        AutoGenerator mpg = new AutoGenerator();
+
+        // 全局配置
+        GlobalConfig gc = new GlobalConfig();
+        // 当前项目路径
+        String projectPath = System.getProperty("user.dir");
+        // 输出目录
+        gc.setOutputDir(projectPath + "/src/main/java");
+        // 作者
+        gc.setAuthor("engure");
+        // 打开输出目录
+        gc.setOpen(false);
+        // xml开启 BaseResultMap
+        gc.setBaseResultMap(true);
+        // xml开启 BaseColumnList
+        gc.setBaseColumnList(true);
+        // 日期格式，采用 Date
+        gc.setDateType(DateType.ONLY_DATE);
+        // gc.setSwagger2(true); 实体属性 Swagger2 注解
+        mpg.setGlobalConfig(gc);
+
+        // 数据源配置
+        DataSourceConfig dsc = new DataSourceConfig();
+        dsc.setUrl("jdbc:mysql://localhost:3306/miaosha?serverTimezone=Hongkong");
+        dsc.setDriverName("com.mysql.cj.jdbc.Driver");
+        dsc.setUsername("root");
+        dsc.setPassword("123");
+        mpg.setDataSource(dsc);
+
+        // 包配置
+        PackageConfig pc = new PackageConfig();
+        // pc.setModuleName(scanner("模块名"));
+        pc.setParent("com.engure.seckill")
+                .setEntity("pojo")
+                .setMapper("mapper")
+                .setService("service")
+                .setServiceImpl("service.impl")
+                .setController("controller");
+        mpg.setPackageInfo(pc);
+
+        // 自定义配置
+        InjectionConfig cfg = new InjectionConfig() {
+            @Override
+            public void initMap() {
+                // to do nothing
+                Map<String, Object> map = new HashMap<>();
+                map.put("date1", "1.1.1");
+                this.setMap(map);
+            }
+        };
+
+        // 如果模板引擎是 freemarker
+        String templatePath = "/templates/mapper.xml.ftl";
+
+        // 自定义输出配置
+        List<FileOutConfig> focList = new ArrayList<>();
+        // 自定义配置会被优先输出
+        focList.add(new FileOutConfig(templatePath) {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名 ， 如果你 Entity 设置了前后缀、此处注意 xml 的名称会跟着发生变化！！
+                return projectPath + "/src/main/resources/mapper/"
+                        + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+            }
+        });
+        cfg.setFileOutConfigList(focList);
+        mpg.setCfg(cfg);
+
+        // 配置模板(自定义模板，将jar中的模板拷贝到项目中)
+        TemplateConfig templateConfig = new TemplateConfig()
+                .setEntity("templates/myentity.java")
+                .setMapper("templates/mymapper.java")
+                .setService("templates/myservice.java")
+                .setServiceImpl("templates/myserviceimpl.java")
+                .setController("templates/mycontroller.java");
+
+        templateConfig.setXml(null);
+        mpg.setTemplate(templateConfig);
+
+        // 策略配置
+        StrategyConfig strategy = new StrategyConfig();
+        // 数据库 表映射到实体的命名策略
+        strategy.setNaming(NamingStrategy.underline_to_camel);
+        // 数据库 表字段映射到实体的命名策略
+        strategy.setColumnNaming(NamingStrategy.underline_to_camel);
+        // lombok模型
+        strategy.setEntityLombokModel(true);
+        // 生成 @RestController 控制器
+        // strategy.setRestControllerStyle(true);
+        // 写于父类中的公共字段
+        strategy.setInclude(scanner("表名，多个英文逗号分割").split(","));
+        strategy.setControllerMappingHyphenStyle(true);
+        // 表前缀
+        strategy.setTablePrefix("t_");
+        mpg.setStrategy(strategy);
+        mpg.setTemplateEngine(new FreemarkerTemplateEngine());
+        mpg.execute();
+    }
+
+}
+```
+
+生成结束后，将代码（包含mapper.xml）拷贝到核心项目中
 
 
 
