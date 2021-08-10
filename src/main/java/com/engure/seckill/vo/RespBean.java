@@ -24,6 +24,10 @@ public class RespBean {
                 RespTypeEnum.SUCCESS.getMsg(), data);
     }
 
+    public static RespBean success(RespTypeEnum typeEnum) {
+        return new RespBean(typeEnum.getCode(), typeEnum.getMsg(), null);
+    }
+
     public static RespBean error(RespTypeEnum typeEnum) {
         return new RespBean(typeEnum.getCode(), typeEnum.getMsg(), null);
     }

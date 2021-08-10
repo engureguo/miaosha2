@@ -400,7 +400,44 @@ public class CodeGenerator {
 
 
 
+**前端页面**
 
+```js
+function login() {
+        $("#loginForm").validate({
+            submitHandler: function (form) {
+                doLogin();
+            }
+        });
+    }
+    function doLogin() {
+        g_showLoading();
+        var inputPass = $("#password").val();
+        var salt = g_passsword_salt;
+        var str = "" + salt.charAt(3) + salt.charAt(8) + inputPass + salt.charAt(0) + salt.charAt(9);
+        var password = md5(str);
+        $.ajax({
+            url: "/login/doLogin",
+            type: "POST",
+            data: {
+                mobile: $("#mobile").val(),
+                password: password
+            },
+            success: function (data) {
+                // layer.closeAll();
+                if (data.code == 200) {
+                    layer.msg("成功");
+                    window.location.href="/goods/toList"
+                } else {
+                    layer.msg(data.message);
+                }
+            },
+            error: function () {
+                // layer.closeAll();
+            }
+        });
+    }
+```
 
 
 
