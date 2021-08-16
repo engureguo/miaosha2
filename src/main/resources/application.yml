@@ -28,10 +28,10 @@ spring:
       connection-test-query: SELECT 1
   # redis 配置
   redis:
-    host: xxxx
-    password: xxxxx
-    # 默认是9637
-    port: 9763
+    host: localhost
+    password:
+    # 默认是6379 （9637 hhhhhh）
+    port: 6379
     # 数据库
     database: 0
     # 连接超时时间
