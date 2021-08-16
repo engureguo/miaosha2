@@ -12,12 +12,15 @@ import com.engure.seckill.utils.ValidatorUtil;
 import com.engure.seckill.vo.LoginVO;
 import com.engure.seckill.vo.RespBean;
 import com.engure.seckill.vo.RespTypeEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.util.StringUtils;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -28,16 +31,20 @@ import javax.servlet.http.HttpServletResponse;
  * @since 2021-08-10
  */
 @Service
+@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Override
     public RespBean doLogin(LoginVO vo, HttpServletRequest request, HttpServletResponse response) {
 
         // 合法性验证
-        if (StringUtils.isEmpty(vo.getPassword()) ||
+        if (!StringUtils.hasLength(vo.getPassword()) ||
                 !ValidatorUtil.isRightMobile(vo.getMobile()))
             throw new GlobalException(RespTypeEnum.LOGIN_ERROR);
 
@@ -53,8 +60,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // cookie+session思路。cookie-token <-> token-userInfo
         String ticket = UUIDUtil.uuid();
         CookieUtil.setCookie(request, response, "user_ticket", ticket);
-        request.getSession().setAttribute(ticket, user);
+        //request.getSession().setAttribute(ticket, user);
+        // 存入redis
+        redisTemplate.opsForValue().set("user_ticket:"+ticket, user, 1, TimeUnit.HOURS);
 
         return RespBean.success(RespTypeEnum.LOGIN_SUCCESS);
+    }
+
+    @Override
+    public User getUserInfoByTicket(String ticket) {
+
+        if (!StringUtils.hasLength(ticket))
+            return null;
+
+        return (User) redisTemplate.opsForValue().get("user_ticket:"+ticket);
     }
 }

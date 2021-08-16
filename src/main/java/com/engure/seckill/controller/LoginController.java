@@ -3,7 +3,6 @@ package com.engure.seckill.controller;
 import com.engure.seckill.service.IUserService;
 import com.engure.seckill.vo.LoginVO;
 import com.engure.seckill.vo.RespBean;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -16,7 +15,6 @@ import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/login")
-@Slf4j
 public class LoginController {
 
     @Autowired

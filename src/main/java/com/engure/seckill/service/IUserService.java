@@ -20,4 +20,6 @@ public interface IUserService extends IService<User> {
 
     RespBean doLogin(LoginVO vo, HttpServletRequest request, HttpServletResponse response);
 
+    User getUserInfoByTicket(String ticket);
+
 }
