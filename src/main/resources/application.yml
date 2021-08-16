@@ -3,6 +3,8 @@ spring:
   thymeleaf:
     # 关闭缓存
     cache: false
+    prefix: classpath:/static/
+    suffix: .html
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

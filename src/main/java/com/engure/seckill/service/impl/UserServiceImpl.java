@@ -62,7 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         CookieUtil.setCookie(request, response, "user_ticket", ticket);
         //request.getSession().setAttribute(ticket, user);
         // 存入redis
-        redisTemplate.opsForValue().set("user_ticket:"+ticket, user, 1, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set("user_ticket:" + ticket, user, 1, TimeUnit.HOURS);
 
         return RespBean.success(RespTypeEnum.LOGIN_SUCCESS);
     }
@@ -73,6 +73,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (!StringUtils.hasLength(ticket))
             return null;
 
-        return (User) redisTemplate.opsForValue().get("user_ticket:"+ticket);
+        return (User) redisTemplate.opsForValue().get("user_ticket:" + ticket);
     }
 }

@@ -1,5 +1,6 @@
 package com.engure.seckill.controller;
 
+import com.engure.seckill.pojo.User;
 import com.engure.seckill.service.IUserService;
 import com.engure.seckill.vo.LoginVO;
 import com.engure.seckill.vo.RespBean;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 @Controller
@@ -24,17 +24,21 @@ public class LoginController {
      * 登录界面
      *
      * @param ticket
-     * @param session
      * @return
      */
     @GetMapping("")     // 写 / 是需要访问 8080/login/ 才通？？？
-    public String login(
-            @CookieValue(value = "user_ticket", required = false) String ticket,
-            HttpSession session) {
+    public String login(@CookieValue(value = "user_ticket", required = false) String ticket) {
 
         // 已登陆，防止二次登录
-        if (StringUtils.hasLength(ticket) && session != null && session.getAttribute(ticket) != null)
-            return "redirect:/goods/list";
+        // session写法
+        //if (StringUtils.hasLength(ticket) && session != null && session.getAttribute(ticket) != null)
+        //    return "redirect:/goods/list";
+        // redis写法
+        if (StringUtils.hasLength(ticket)) {
+            User user = userService.getUserInfoByTicket(ticket);
+            if (user != null)
+                return "redirect:/goods/list";
+        }
 
         // 未登录则转发 login.html
         return "login";
