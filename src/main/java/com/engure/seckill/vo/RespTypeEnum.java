@@ -14,6 +14,7 @@ public enum RespTypeEnum {
     LOGIN_ERROR(500201, "账号或密码错误"),
     USER_NOT_REGISTERED(500202,   "用户未注册"),
     LOGIN_SUCCESS(200, "登陆成功"),
+    ALREADY_LOGIN(200, "已经登陆"),
     //校验
     VALIDATE_ERROR(500204, "参数校验错误"),
 

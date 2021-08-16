@@ -5,6 +5,9 @@ import com.engure.seckill.pojo.User;
 import com.engure.seckill.vo.LoginVO;
 import com.engure.seckill.vo.RespBean;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * <p>
  *  服务类
@@ -15,6 +18,6 @@ import com.engure.seckill.vo.RespBean;
  */
 public interface IUserService extends IService<User> {
 
-    RespBean doLogin(LoginVO vo);
+    RespBean doLogin(LoginVO vo, HttpServletRequest request, HttpServletResponse response);
 
 }

@@ -79,9 +79,9 @@
             },
             success: function (data) {
                 // layer.closeAll();
-                if (data.code == 200) {
+                if (data.code === 200) {
                     layer.msg("成功");
-                    // window.location.href="/goods/toList"
+                    window.location.href="/goods/list"
                 } else {
                     layer.msg(data.msg);
                 }
