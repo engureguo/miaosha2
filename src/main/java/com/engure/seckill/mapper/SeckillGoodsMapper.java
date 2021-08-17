@@ -1,8 +1,7 @@
 package com.engure.seckill.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.engure.seckill.pojo.User;
-import org.apache.ibatis.annotations.Mapper;
+import com.engure.seckill.pojo.SeckillGoods;
 
 /**
  * <p>
@@ -10,8 +9,8 @@ import org.apache.ibatis.annotations.Mapper;
  * </p>
  *
  * @author engure
- * @since 2021-08-10
+ * @since 2021-08-17
  */
-public interface UserMapper extends BaseMapper<User> {
+public interface SeckillGoodsMapper extends BaseMapper<SeckillGoods> {
 
 }

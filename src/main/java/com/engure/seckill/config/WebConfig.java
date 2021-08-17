@@ -19,13 +19,12 @@ public class WebConfig implements WebMvcConfigurer  {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(userArgumentResolver);//
+        resolvers.add(userArgumentResolver);
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/")
-                .addResourceLocations("classpath:/templates/");
+                .addResourceLocations("classpath:/static/");
     }
 }

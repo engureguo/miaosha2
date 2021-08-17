@@ -16,7 +16,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import javax.servlet.http.HttpServletRequest;
 
 @Component
-@Slf4j
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Autowired
