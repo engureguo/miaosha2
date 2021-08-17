@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author engure
@@ -16,5 +16,18 @@ import java.util.List;
  */
 public interface IGoodsService extends IService<Goods> {
 
+    /**
+     * 获取所有商品信息
+     *
+     * @return
+     */
     List<GoodsVo> findAllGoodsVo();
+
+    /**
+     * 获取商品详情
+     *
+     * @param goodsId
+     * @return
+     */
+    GoodsVo findGoodsVoByGoodsId(Long goodsId);
 }
