@@ -69,7 +69,7 @@ public class GoodsController {
         if (nowDate.before(startDate)) {
             remainSeconds = ((int) ((startDate.getTime() - nowDate.getTime()) / 1000));
         } else if (nowDate.after(endDate)) {
-            //	秒杀已结束
+            //秒杀已结束
             secKillStatus = 2;
             remainSeconds = -1;
         } else {

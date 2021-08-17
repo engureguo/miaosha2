@@ -17,6 +17,9 @@ public enum RespTypeEnum {
     ALREADY_LOGIN(200, "已经登陆"),
     //校验
     VALIDATE_ERROR(500204, "参数校验错误"),
+    //库存不足
+    OUT_OF_STOCK(5005, "库存不足"),
+    REPEATED_BUY_ERROR(5006, "超过购买次数"),
 
     ;
 

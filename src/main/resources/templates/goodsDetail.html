@@ -32,14 +32,15 @@
         </tr>
         <tr>
             <td>秒杀开始时间</td>
-            <!--格式化-->
             <td th:text="${#dates.format(goods.startDate,'yyyy-MM-dd HH:mm:ss')}"></td>
             <td id="seckillTip">
                 <input type="hidden" id="remainSeconds" th:value="${remainSeconds}">
-                <span th:if="${secKillStatus eq 0}">秒杀倒计时: <span id="countDown"
-                                                                 th:text="${remainSeconds}"></span>秒</span>
-                <span th:if="${secKillStatus eq 1}">秒杀进行中:</span>
-                <span th:if="${secKillStatus eq 2}">秒杀已结束:</span>
+                <input type="hidden" id="seckillStatus" th:value="${secKillStatus}">
+                <span th:if="${secKillStatus eq 0}">
+                    秒杀倒计时: <span id="countDown" th:text="${remainSeconds}"></span>秒
+                </span>
+                <span th:if="${secKillStatus eq 1}">秒杀进行中</span>
+                <span th:if="${secKillStatus eq 2}">秒杀已结束</span>
             </td>
             <td>
                 <form id="secKillForm" method="post" action="/seckill/doSeckill">
@@ -65,30 +66,43 @@
 </body>
 <script>
     $(function () {
-        countDown();
+        check()
     });
 
-    function countDown() {
-        var remainSeconds = $("#remainSeconds").val();
-        var timeout;
-        if (remainSeconds > 0) {
-            $("#buyButton").attr("disabled", true);
-            timeout = setTimeout(function () {
-                $("#countDown").text(remainSeconds - 1);
-                $("#remainSeconds").val(remainSeconds - 1);
-                countDown();
-            }, 1000)
-        } else if (remainSeconds === 0) {            // 没有结束倒计时，只有重新刷新才能直到 秒杀已经结束。后端限制结束时间
-            $("#buyButton").attr("disabled", false);
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-            $("#seckillTip").html("秒杀进行中");
-        } else {
-            $("#buyButton").attr("disabled", true);
-            $("#seckillTip").html("秒杀已结束");
+    function check() {
+        $("#buyButton").attr("disabled", true)  // 禁用按钮
+
+        var killStatus = $("#seckillStatus").val() //秒杀状态 0未开始，1进行中，2已结束
+
+        //进行中，放开按钮
+        if (killStatus === 1) {
+            $("#buyButton").attr("disabled", false)
+            return
         }
 
-    };
+        //已结束
+        if (killStatus === 2 ) return
+
+        //未开始，倒计时
+        sleepAndCountDown()
+    }
+
+    // 倒计时，直到到时，到时结束，否则再来一轮
+    function sleepAndCountDown() {
+        var remainSeconds = $("#remainSeconds").val() // 剩余时间 >0倒计时，=0正在秒杀，<0已结束
+
+        if (remainSeconds <= 0) {
+            $("#buyButton").attr("disabled", false)
+            $("#seckillTip").html("秒杀进行中")
+            return
+        }
+
+        setTimeout(()=>{
+            $("#remainSeconds").val(remainSeconds - 1)
+            $("#countDown").text(remainSeconds - 1);
+            sleepAndCountDown()
+        }, 1000)
+    }
+
 </script>
 </html>
