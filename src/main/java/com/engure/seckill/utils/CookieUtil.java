@@ -1,5 +1,7 @@
 package com.engure.seckill.utils;
 
+import org.springframework.util.StringUtils;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -175,7 +177,7 @@ public final class CookieUtil {
             }
             Cookie cookie = new Cookie(cookieName, cookieValue);
             if (cookieMaxage > 0) {
-               cookie.setMaxAge(cookieMaxage);
+                cookie.setMaxAge(cookieMaxage);
             }
             if (null != request) {// 设置域名的cookie
                 String domainName = getDomainName(request);
@@ -220,8 +222,16 @@ public final class CookieUtil {
             final String[] domains = serverName.split("\\.");
             int len = domains.length;
             if (len > 3) {
-                // www.xxx.com.cn
-                domainName = domains[len - 3] + "." + domains[len - 2] + "." + domains[len - 1];
+
+                    // 也可能是ip地址。域名最多有 126级 https://www.zhihu.com/question/20940247
+                    if (len == 4 && checkIP(domains[0]) && checkIP(domains[1])
+                            && checkIP(domains[2])) {
+                        domainName = serverName;
+                    }else {
+                        // www.xxx.com.cn
+                        domainName = domains[len - 3] + "." + domains[len - 2] + "." + domains[len - 1];
+                    }
+
             } else if (len <= 3 && len > 1) {
                 // xxx.com or xxx.cn
                 domainName = domains[len - 2] + "." + domains[len - 1];
@@ -236,4 +246,20 @@ public final class CookieUtil {
         }
         return domainName;
     }
+
+    private static boolean checkIP(String num) {
+        if (StringUtils.hasLength(num)) {
+            int n = 0;
+
+            try {
+                n = Integer.parseInt(num);
+                return 0 <= n && n <= 255;
+            } catch (NumberFormatException e) {
+                //e.printStackTrace();
+                return false;
+            }
+        }
+        return false;
+    }
+
 }

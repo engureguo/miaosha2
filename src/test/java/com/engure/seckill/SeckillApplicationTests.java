@@ -8,14 +8,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 @SpringBootTest
 class SeckillApplicationTests {
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-
     @Test
     void contextLoads() {
-
-        redisTemplate.opsForValue().set("a", "sossosososos......");
-
 
     }
 
