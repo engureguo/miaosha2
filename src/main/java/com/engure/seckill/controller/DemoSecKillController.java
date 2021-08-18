@@ -1,12 +1,10 @@
 package com.engure.seckill.controller;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/sk")
+@Controller
 public class DemoSecKillController {
 
     /**
@@ -16,6 +14,16 @@ public class DemoSecKillController {
     public String hello(Model model) {
         model.addAttribute("name", "hello");
         return "hello";
+    }
+
+    /**
+     * 404
+     *
+     * @return
+     */
+    @GetMapping("/error/404")
+    public String error() {
+        return "error/404";
     }
 
 }

@@ -37,7 +37,7 @@ public class LoginController {
         if (StringUtils.hasLength(ticket)) {
             User user = userService.getUserInfoByTicket(ticket);
             if (user != null)
-                return "redirect:/goods/list";
+                return "redirect:/goods/toList";
         }
 
         // 未登录则转发 login.html
