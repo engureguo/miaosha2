@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * 压测： /seckill/doSeckill
  *  QPS 1000 * 10:   前          后
  *      windows    1339
- *      linux       318
  *
  *
  */

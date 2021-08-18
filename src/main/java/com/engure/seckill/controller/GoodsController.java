@@ -2,28 +2,35 @@ package com.engure.seckill.controller;
 
 import com.engure.seckill.pojo.User;
 import com.engure.seckill.service.IGoodsService;
+import com.engure.seckill.utils.CookieUtil;
 import com.engure.seckill.vo.GoodsVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
- *
  * 商品控制器
- *
- *
+ * <p>
+ * <p>
  * 压测： /goods/toList
- *  QPS 1000 * 10:   前          后
- *      windows    1384
- *      linux       494
- *
+ * QPS 1000 * 10:    前      页面缓存
+ *      windows    1384        3220
  *
  *
  */
@@ -37,6 +44,12 @@ public class GoodsController {
     @Autowired
     private IGoodsService goodsService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private ThymeleafViewResolver thymeleafViewResolver;
+
     /**
      * 商品列表
      *
@@ -44,31 +57,52 @@ public class GoodsController {
      * @param model
      * @return
      */
-    @RequestMapping("/toList")
+    @RequestMapping(value = "/toList", produces = "text/html;charset=utf-8")
+    @ResponseBody
     public String list(User user,       // 在 controller 入口之前做校验
-                       Model model) {
+                       Model model,
+                       HttpServletRequest request,
+                       HttpServletResponse response) throws IOException {
 
-        if (null == user) return "login";
+        if (null == user) {
+            CookieUtil.deleteCookie(request, response, "user_ticket");//过期cookie导致，清除cookie
+            return "<script>location.href='/login'</script>";
+        }
+
+        ValueOperations opsFV = redisTemplate.opsForValue();
+        Object html = opsFV.get("html:goods:toList");
+
+        if (null != html) return (String) html;
 
         model.addAttribute("user", user);//返回用户信息1
-
         List<GoodsVo> goodsVoList = goodsService.findAllGoodsVo();
         model.addAttribute("goodsList", goodsVoList);//返回商品信息2
 
-        return "goodsList";
+        WebContext context = new WebContext(request, response, request.getServletContext(), request.getLocale(), model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goodsList", context);
+        opsFV.set("html:goods:toList", html, 10, TimeUnit.SECONDS);
+
+        return (String) html;
     }
 
     /**
      * 商品详情页
      *
-     * @param goodsId
+     * @param goodsId require=true，默认不会出现null，否则 404
      * @param user
      * @param model
      * @return
      */
-    @RequestMapping("/toDetail/{goodsId}")
-    public String detail(@PathVariable Long goodsId, User user, Model model) {
-        if (null == user) return "login";
+    @RequestMapping(value = "/toDetail/{goodsId}", produces = "text/html;charset=utf-8")
+    @ResponseBody
+    public String detail(@PathVariable Long goodsId, User user, Model model,
+                         HttpServletRequest request,
+                         HttpServletResponse response) {
+
+        if (null == user) {
+            CookieUtil.deleteCookie(request, response, "user_ticket");//过期cookie导致，清除cookie
+            return "<script>location.href='/login'</script>";
+        }
 
         GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
         model.addAttribute("user", user);
@@ -95,7 +129,17 @@ public class GoodsController {
         model.addAttribute("remainSeconds", remainSeconds);
         model.addAttribute("secKillStatus", secKillStatus);
 
-        return "goodsDetail";
+
+        ValueOperations opsFV = redisTemplate.opsForValue();
+        Object html = opsFV.get("html:goods:toDetail" + goodsId);
+
+        if (null != html) return (String) html;
+
+        WebContext context = new WebContext(request, response, request.getServletContext(), request.getLocale(), model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goodsDetail", context);
+        opsFV.set("html:goods:toDetail" + goodsId, html, 10, TimeUnit.SECONDS);
+
+        return (String) html;
     }
 
 
