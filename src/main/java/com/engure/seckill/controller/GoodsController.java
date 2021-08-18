@@ -13,6 +13,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.Date;
 import java.util.List;
 
+
+/**
+ *
+ * 商品控制器
+ *
+ *
+ * 压测： /goods/toList
+ *  QPS 1000 * 10:   前          后
+ *      windows    1384
+ *      linux       494
+ *
+ *
+ *
+ */
+
+
 @Controller
 @RequestMapping("/goods")
 @Slf4j

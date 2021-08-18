@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 public class LoginVO {
 
     @NotNull
-    @IsMobile(required = false) // 自定义校验规则
+    @IsMobile() // 自定义校验规则
     private String mobile;
 
     @NotNull

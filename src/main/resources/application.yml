@@ -28,9 +28,9 @@ spring:
       connection-test-query: SELECT 1
   # redis 配置
   redis:
-    host: localhost
+    host: localhost #192.168.217.1
     password:
-    # 默认是6379 （9637 hhhhhh）
+    # 默认是6379
     port: 6379
     # 数据库
     database: 0

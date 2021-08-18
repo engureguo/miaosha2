@@ -30,8 +30,9 @@ public class MD5Util {
 
     /**
      * 后端，第二次加密，表单 到 数据库
+     *
      * @param formPass 表单密码，从请求中得到的密码，是前端加密后的结果
-     * @param salt 【后端生成的随机盐】！！最终存放到数据库中
+     * @param salt     【后端生成的随机盐】！！最终存放到数据库中
      */
     public static String formToDb(String formPass, String salt) {
         String complexStr = salt.charAt(1) + salt.charAt(6) +
@@ -48,6 +49,19 @@ public class MD5Util {
         return md5(complexStr);
     }
 
+    /**
+     * 根据密码生成数据库密码
+     *
+     * @param inputPass 明文密码
+     * @param randomSalt 随机盐
+     * @return
+     */
+    public static String inputToDb(String inputPass, String randomSalt) {
+        String formPass = inputToForm(inputPass);
+        String dbPass = formToDb(formPass, randomSalt);
+        return dbPass;
+    }
+
     /*************************************************************************************/
 
     public static void main(String[] args) {
@@ -55,7 +69,14 @@ public class MD5Util {
         String dbPass = MD5Util.formToDb(formPass, salt);//不随机生成，使用前端的盐
         System.out.println(formPass);//758a95877ef99f4a2b88dbcf6968e22a
         System.out.println(dbPass);//06afe56d1ddae57e3f32c66313db7075
+
+        String dbPass2 = inputToDb("123456", salt);
+        System.out.println(dbPass2);
     }
 
+    /*************************************************************************************/
 
+    public static String getSalt() {
+        return salt;
+    }
 }

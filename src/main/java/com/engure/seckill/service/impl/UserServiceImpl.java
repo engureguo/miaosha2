@@ -64,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 存入redis
         redisTemplate.opsForValue().set("user_ticket:" + ticket, user, 1, TimeUnit.HOURS);
 
-        return RespBean.success(RespTypeEnum.LOGIN_SUCCESS);
+        return RespBean.success(ticket);//返回ticket，后边要用
     }
 
     @Override
