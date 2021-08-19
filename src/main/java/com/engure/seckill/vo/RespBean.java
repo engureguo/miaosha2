@@ -35,6 +35,10 @@ public class RespBean {
         return new RespBean(typeEnum.getCode(), typeEnum.getMsg(), null);
     }
 
+    public static RespBean error(RespTypeEnum typeEnum, Object data) {
+        return new RespBean(typeEnum.getCode(), typeEnum.getMsg(), data);
+    }
+
     public static RespBean error(RespTypeEnum typeEnum, String msg, Object data) {
         return new RespBean(typeEnum.getCode(), msg, data);
     }

@@ -23,6 +23,8 @@ public enum RespTypeEnum {
     REPEATED_BUY_ERROR(500502, "超过购买次数"),
     //订单
     ORDER_NOT_EXIST(500601, "订单不存在"),
+    //秒杀
+    SECKILL_ERROR(500701, "秒杀失败，请重试~"),
 
     ;
 

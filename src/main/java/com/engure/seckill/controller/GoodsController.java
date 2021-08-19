@@ -33,10 +33,9 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * <p>
  * 压测： /goods/toList
- * QPS 1000 * 10:    前      页面缓存
- *      windows    1384        3220
- *
- *
+ * QPS 1000 * 10:
+ * 前      页面缓存
+ * 1384        3220
  */
 
 

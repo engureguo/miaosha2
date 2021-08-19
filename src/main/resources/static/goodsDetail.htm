@@ -74,7 +74,7 @@
             },
             type: 'POST',
             success: function (data) {
-                if (data.code == 200) {
+                if (data.code == 200 || data.code == 500502) {  // 成功秒杀的，或者是二次秒杀的
                     location.href = "/orderDetail.htm?orderId=" + data.data.id // 订单id
                 } else {
                     layer.msg(data.msg)
