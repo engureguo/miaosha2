@@ -17,14 +17,14 @@ import java.util.List;
 public interface IGoodsService extends IService<Goods> {
 
     /**
-     * 获取所有商品信息
+     * 获取所有秒杀商品信息，返回 vo 列表
      *
      * @return
      */
     List<GoodsVo> findAllGoodsVo();
 
     /**
-     * 获取商品详情
+     * 获取秒杀商品信息，返回 vo 对象
      *
      * @param goodsId
      * @return

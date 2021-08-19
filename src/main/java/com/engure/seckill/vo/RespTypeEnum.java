@@ -13,14 +13,16 @@ public enum RespTypeEnum {
     //登录
     LOGIN_ERROR(500201, "账号或密码错误"),
     USER_NOT_REGISTERED(500202,   "用户未注册"),
+    SESSION_NOT_EXIST(500203, "用户不存在"),
     LOGIN_SUCCESS(200, "登陆成功"),
     ALREADY_LOGIN(200, "已经登陆"),
-    SESSION_NOT_EXIST(500205, "用户不存在"),
     //校验
-    VALIDATE_ERROR(500204, "参数校验错误"),
+    VALIDATE_ERROR(500401, "参数校验错误"),
     //库存不足
-    OUT_OF_STOCK(5005, "库存不足"),
-    REPEATED_BUY_ERROR(5006, "超过购买次数"),
+    OUT_OF_STOCK(500501, "库存不足"),
+    REPEATED_BUY_ERROR(500502, "超过购买次数"),
+    //订单
+    ORDER_NOT_EXIST(500601, "订单不存在"),
 
     ;
 

@@ -64,6 +64,29 @@
         getDetails();
     });
 
+    function doSeckill() {
+
+        var goodsId = g_getQueryString("goodsId");
+        $.ajax({
+            url: '/seckill/doSeckill2/',
+            data: {
+                "goodsId": goodsId
+            },
+            type: 'POST',
+            success: function (data) {
+                if (data.code == 200) {
+                    location.href = "/orderDetail.htm?orderId=" + data.data.id // 订单id
+                } else {
+                    layer.msg(data.msg)
+                }
+            },
+            error: function () {
+                layer.msg("秒杀失败~")
+            }
+        })
+
+    }
+
     function getDetails() {
         var goodsId = g_getQueryString("goodsId");
         $.ajax({

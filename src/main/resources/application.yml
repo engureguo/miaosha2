@@ -1,4 +1,25 @@
 spring:
+  # 静态资源处理
+  resources:
+    # 是否开启资源处理，默认true
+    add-mappings: true
+    cache:
+      cachecontrol:
+        # 响应缓存的最大时间，单位秒
+        max-age: 3600
+    chain:
+      # 启用资源链
+      enabled: true
+      # 资源链启动缓存，默认启动
+      cache: true
+      # 是否启用已压缩资源(gzip, brotli)的解析，默认禁用
+      compressed: true
+      # Whether to enable HTML5 application cache manifest rewriting
+      # 是否启用HTML 5应用程序缓存清单重写
+      html-application-cache: true
+    # Locations of static resources. Defaults to classpath:[/META-INF/resources/, /resources/, /static/, /public/].
+    static-locations: classpath:/static/
+
   # thymeleaf配置
   thymeleaf:
     # 关闭缓存
