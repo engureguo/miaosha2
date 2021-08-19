@@ -1,9 +1,13 @@
 package com.engure.seckill.controller;
 
+import com.engure.seckill.exception.GlobalException;
 import com.engure.seckill.pojo.User;
 import com.engure.seckill.service.IGoodsService;
 import com.engure.seckill.utils.CookieUtil;
+import com.engure.seckill.vo.GoodsDetailVo;
 import com.engure.seckill.vo.GoodsVo;
+import com.engure.seckill.vo.RespBean;
+import com.engure.seckill.vo.RespTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -142,5 +146,47 @@ public class GoodsController {
         return (String) html;
     }
 
+
+    @RequestMapping(value = "/detail/{goodsId}")
+    @ResponseBody
+    public RespBean detail2(@PathVariable Long goodsId, User user,
+                            HttpServletRequest request,
+                            HttpServletResponse response) {
+
+        if (null == user) {
+            CookieUtil.deleteCookie(request, response, "user_ticket");//过期cookie导致，清除cookie
+            throw new GlobalException(RespTypeEnum.SESSION_NOT_EXIST);
+            //用户不存在，此处在前端缺少一个重定向的动作
+        }
+
+        GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
+
+        Date startDate = goodsVo.getStartDate();
+        Date endDate = goodsVo.getEndDate();
+        Date nowDate = new Date();
+        //秒杀状态 0未开始，1进行中，2已结束
+        int secKillStatus = 0;
+        //秒杀倒计时 >0倒计时，0进行中，-1已结束
+        int remainSeconds = 0;
+        //秒杀还未开始
+        if (nowDate.before(startDate)) {
+            remainSeconds = ((int) ((startDate.getTime() - nowDate.getTime()) / 1000));
+        } else if (nowDate.after(endDate)) {
+            //秒杀已结束
+            secKillStatus = 2;
+            remainSeconds = -1;
+        } else {
+            //秒杀中
+            secKillStatus = 1;
+        }
+
+        GoodsDetailVo goodsDetailVo = new GoodsDetailVo();
+        goodsDetailVo.setGoodsVo(goodsVo);
+        goodsDetailVo.setUser(user);
+        goodsDetailVo.setRemainSeconds(remainSeconds);
+        goodsDetailVo.setSecKillStatus(secKillStatus);
+
+        return RespBean.success(goodsDetailVo);
+    }
 
 }

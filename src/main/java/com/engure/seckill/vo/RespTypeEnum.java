@@ -15,6 +15,7 @@ public enum RespTypeEnum {
     USER_NOT_REGISTERED(500202,   "用户未注册"),
     LOGIN_SUCCESS(200, "登陆成功"),
     ALREADY_LOGIN(200, "已经登陆"),
+    SESSION_NOT_EXIST(500205, "用户不存在"),
     //校验
     VALIDATE_ERROR(500204, "参数校验错误"),
     //库存不足
