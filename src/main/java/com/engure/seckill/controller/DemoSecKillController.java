@@ -83,4 +83,28 @@ public class DemoSecKillController {
         return RespBean.success();
     }
 
+    /////////////  topic exchange  //////////////////////
+
+    @GetMapping("/mq/topic01")
+    @ResponseBody
+    public RespBean mqTopic1() {
+        mqSender.sendByTopic01("这是一个 a.b.c 类型消息");
+        return RespBean.success();
+    }
+
+    @GetMapping("/mq/topic02")
+    @ResponseBody
+    public RespBean mqTopic2() {
+        mqSender.sendByTopic02("这是一个 e.f 类型消息");
+        return RespBean.success();
+    }
+
+    @GetMapping("/mq/topic03")
+    @ResponseBody
+    public RespBean mqTopic3() {
+        mqSender.sendByTopic03("这是一个 c.b.a 类型的消息");
+        return RespBean.success();
+    }
+
+
 }

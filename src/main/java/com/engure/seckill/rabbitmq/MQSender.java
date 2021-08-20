@@ -2,6 +2,7 @@ package com.engure.seckill.rabbitmq;
 
 import com.engure.seckill.config.RabbitMQConfigDirect;
 import com.engure.seckill.config.RabbitMQConfigFanout;
+import com.engure.seckill.config.RabbitMQConfigTopic;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,23 @@ public class MQSender {
         // (direct交换机，bindingKey，obj_msg)
         rabbitTemplate.convertAndSend(RabbitMQConfigDirect.DIRECT_EXCHANGE,
                 RabbitMQConfigDirect.BINDING_KEY_TYPE_B, msg);
+    }
+
+    /////////////  topic exchange  //////////////////////
+
+    public void sendByTopic01(Object msg) {
+        log.info("发送消息:" + msg);
+        rabbitTemplate.convertAndSend(RabbitMQConfigTopic.TOPIC_EXCHANGE, "a.b.c", msg);
+    }
+
+    public void sendByTopic02(Object msg) {
+        log.info("发送消息:" + msg);
+        rabbitTemplate.convertAndSend(RabbitMQConfigTopic.TOPIC_EXCHANGE, "e.f", msg);
+    }
+
+    public void sendByTopic03(Object msg) {
+        log.info("发送消息:" + msg);
+        rabbitTemplate.convertAndSend(RabbitMQConfigTopic.TOPIC_EXCHANGE, "c.b.a", msg);
     }
 
 }
