@@ -8,19 +8,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMQConfig {
+public class RabbitMQConfigFanout {
 
-    public static final String QUEUE01 = "queue01";
-    public static final String QUEUE02 = "queue02";
+    /////////////  fanout exchange  //////////////////////
+
+    public static final String QUEUE01 = "fanout_queue01";
+    public static final String QUEUE02 = "fanout_queue02";
     public static final String FANOUT_EXCHANGE = "fanout_exchange";
 
     @Bean
-    public Queue queue01() {
+    public Queue fanout_queue01() {
         return new Queue(QUEUE01, true);
     }
 
     @Bean
-    public Queue queue02() {
+    public Queue fanout_queue02() {
         return new Queue(QUEUE02, true);
     }
 
@@ -30,19 +32,25 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding binding01() {
-        return BindingBuilder.bind(queue01()).to(fanoutExchange());
+    public Binding fanout_binding01() {
+        return BindingBuilder.bind(fanout_queue01()).to(fanoutExchange());
     }
 
     @Bean
-    public Binding binding02() {
-        return BindingBuilder.bind(queue02()).to(fanoutExchange());
+    public Binding fanout_binding02() {
+        return BindingBuilder.bind(fanout_queue02()).to(fanoutExchange());
     }
 
+
+
+    /////////////  default exchange  //////////////////////
+
+    public static final String DEFAULT_QUEUE = "queue";
+
     @Bean
-    public Queue queue() {
+    public Queue deault_queue() {
         // durable=true 持久化，当 队列和消息 同时配置持久化时，可以持久化
-        return new Queue("queue", true);
+        return new Queue(DEFAULT_QUEUE, true);
     }
 
 }

@@ -34,6 +34,8 @@ public class DemoSecKillController {
         return "error/404";
     }
 
+    /////////////  default exchange  //////////////////////
+
     /**
      * 测试发送 rabbitmq 消息
      *
@@ -46,6 +48,8 @@ public class DemoSecKillController {
         return RespBean.success();
     }
 
+    /////////////  fanout exchange  //////////////////////
+
     /**
      * 验证 fanout 模式
      *
@@ -55,6 +59,27 @@ public class DemoSecKillController {
     @ResponseBody
     public RespBean mqFanout() {
         mqSender.sendByFanout("hello Fanout, are you broadcast?");
+        return RespBean.success();
+    }
+
+    /////////////  direct exchange  //////////////////////
+
+    /**
+     * 验证 direct 模式
+     *
+     * @return
+     */
+    @GetMapping("/mq/direct01")
+    @ResponseBody
+    public RespBean mqDirect01() {
+        mqSender.sendByDirect_a("这是一个A类型消息");
+        return RespBean.success();
+    }
+
+    @GetMapping("/mq/direct02")
+    @ResponseBody
+    public RespBean mqDirect02() {
+        mqSender.sendByDirect_b("这是一个A类型消息");
         return RespBean.success();
     }
 
