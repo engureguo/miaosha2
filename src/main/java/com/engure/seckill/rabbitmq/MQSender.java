@@ -2,11 +2,16 @@ package com.engure.seckill.rabbitmq;
 
 import com.engure.seckill.config.RabbitMQConfigDirect;
 import com.engure.seckill.config.RabbitMQConfigFanout;
+import com.engure.seckill.config.RabbitMQConfigHeaders;
 import com.engure.seckill.config.RabbitMQConfigTopic;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
 
 @Service
 @Slf4j
@@ -80,6 +85,26 @@ public class MQSender {
     public void sendByTopic03(Object msg) {
         log.info("发送消息:" + msg);
         rabbitTemplate.convertAndSend(RabbitMQConfigTopic.TOPIC_EXCHANGE, "c.b.a", msg);
+    }
+
+    /////////////  headers exchange  //////////////////////
+
+    public void sendByHeaders01(String msg) {
+        log.info("发送消息：" + msg);
+        MessageProperties mp = new MessageProperties();
+        mp.setHeader("color", "red");
+        mp.setHeader("speed", "fast");
+        Message message = new Message(msg.getBytes(StandardCharsets.UTF_8), mp);
+        rabbitTemplate.convertAndSend(RabbitMQConfigHeaders.HEADERS_EXCHANGE, "", message);
+    }
+
+    public void sendByHeaders02(String msg) {
+        log.info("发送消息：" + msg);
+        MessageProperties mp = new MessageProperties();
+        mp.setHeader("color", "red");
+        mp.setHeader("speed", "normal");
+        Message message = new Message(msg.getBytes(StandardCharsets.UTF_8), mp);
+        rabbitTemplate.convertAndSend(RabbitMQConfigHeaders.HEADERS_EXCHANGE, "", message);
     }
 
 }

@@ -11,6 +11,9 @@
 - `notes\` 笔记
   1. [分布式会话及登录功能 01](notes/01登录.md)、 [分布式会话及登录功能 02](notes/02分布式会话.md)
   2. [秒杀功能（基本功能）](notes/03秒杀.md)
+  3. [简单压测](notes/04压测.md)
+  4. [页面优化](notes/05RabbitMQ学习.md)
+  5. [RabbitMQ学习](notes/05RabbitMQ学习.md)、[服务接口优化](notes/06服务优化.md)
 
 
 

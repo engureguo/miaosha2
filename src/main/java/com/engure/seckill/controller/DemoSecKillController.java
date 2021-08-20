@@ -106,5 +106,20 @@ public class DemoSecKillController {
         return RespBean.success();
     }
 
+    /////////////  headers exchange  //////////////////////
+
+    @GetMapping("/mq/headers1")
+    @ResponseBody
+    public RespBean mqHeaders1() {
+        mqSender.sendByHeaders01("headers模式~");
+        return RespBean.success();
+    }
+
+    @GetMapping("/mq/headers2")
+    @ResponseBody
+    public RespBean mqHeaders2() {
+        mqSender.sendByHeaders02("headers模式~");
+        return RespBean.success();
+    }
 
 }

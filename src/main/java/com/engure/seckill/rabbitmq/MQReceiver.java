@@ -2,8 +2,10 @@ package com.engure.seckill.rabbitmq;
 
 import com.engure.seckill.config.RabbitMQConfigDirect;
 import com.engure.seckill.config.RabbitMQConfigFanout;
+import com.engure.seckill.config.RabbitMQConfigHeaders;
 import com.engure.seckill.config.RabbitMQConfigTopic;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +55,18 @@ public class MQReceiver {
     public void receive_topic_queue02(Object msg) {
         log.info("收到消息（订阅：" + RabbitMQConfigTopic.ROUTING_KEY02_QUEUE02
                 + ", " + RabbitMQConfigTopic.ROUTING_KEY03_QUEUE02 + "）：" + msg);
+    }
+
+    /////////////  headers exchange  //////////////////////
+
+    @RabbitListener(queues = RabbitMQConfigHeaders.HEADERS_QUEUE01)
+    public void receive_headers01(Message msg) {
+        log.info("收到消息：" + new String(msg.getBody()) + ", " + msg);
+    }
+
+    @RabbitListener(queues = RabbitMQConfigHeaders.HEADERS_QUEUE02)
+    public void receive_headers02(Message msg) {
+        log.info("收到消息：" + new String(msg.getBody()) + ", " + msg);
     }
 
 }

@@ -4,7 +4,7 @@
 
 
 
-### RabbitMQ
+### RabbitMQ 安装
 
 **安装**
 
@@ -443,7 +443,7 @@ public RespBean mqDirect02() {
 
 
 
-### topic exchange
+### topic exchange ⭐
 
 
 
@@ -609,6 +609,88 @@ topic 模式，是平时使用最多的一种模式，方便管理 routing_key�
 ### headers exchange
 
 
+
+不依赖 routing_key，使用 basicProperties 对象中的 headers，headers 是一个键值对集合对象，可以指定匹配的条件 `any或者all`
+
+平时用的少
+
+
+
+配置 queue 的匹配条件
+
+```java
+@Bean
+public Binding Binding_headers_for_queue01() {
+    Map<String, Object> headerValues = new HashMap<>();
+    headerValues.put("color", "red");
+    headerValues.put("speed", "slow");
+    return BindingBuilder.bind(headers_queue01()).to(headersExchange()).whereAny(headerValues).match();
+}
+
+@Bean
+public Binding Binding_headers_for_queue02() {
+    Map<String, Object> headerValues = new HashMap<>();
+    headerValues.put("color", "red");
+    headerValues.put("speed", "fast");
+    return BindingBuilder.bind(headers_queue02()).to(headersExchange()).whereAll(headerValues).match();
+}
+```
+
+生产者，需要添加 headers 条件到 MessageProperties 中，最后附加到 Message 中
+
+```java
+public void sendByHeaders01(String msg) {
+    log.info("发送消息：" + msg);
+    MessageProperties mp = new MessageProperties();
+    mp.setHeader("color", "red");
+    mp.setHeader("speed", "fast");
+    Message message = new Message(msg.getBytes(StandardCharsets.UTF_8), mp);
+    rabbitTemplate.convertAndSend(RabbitMQConfigHeaders.HEADERS_EXCHANGE, "", message);
+}
+
+public void sendByHeaders02(String msg) {
+    log.info("发送消息：" + msg);
+    MessageProperties mp = new MessageProperties();
+    mp.setHeader("color", "red");
+    mp.setHeader("speed", "normal");
+    Message message = new Message(msg.getBytes(StandardCharsets.UTF_8), mp);
+    rabbitTemplate.convertAndSend(RabbitMQConfigHeaders.HEADERS_EXCHANGE, "", message);
+}
+```
+
+消费者
+
+```java
+@RabbitListener(queues = RabbitMQConfigHeaders.HEADERS_QUEUE01)
+public void receive_headers01(Message msg) {
+    log.info("收到消息：" + new String(msg.getBody()) + ", " + msg);
+}
+
+@RabbitListener(queues = RabbitMQConfigHeaders.HEADERS_QUEUE02)
+public void receive_headers02(Message msg) {
+    log.info("收到消息：" + new String(msg.getBody()) + ", " + msg);
+}
+```
+
+接口
+
+```java
+@GetMapping("/mq/headers1")
+@ResponseBody
+public RespBean mqHeaders1() {
+    mqSender.sendByHeaders01("headers模式~");
+    return RespBean.success();
+}
+
+@GetMapping("/mq/headers2")
+@ResponseBody
+public RespBean mqHeaders2() {
+    mqSender.sendByHeaders02("headers模式~");
+    return RespBean.success();
+}
+```
+
+<img src="images/05服务优化.assets/image-20210820210524640.png" alt="image-20210820210524640" style="zoom:80%;" />
 
 
 
