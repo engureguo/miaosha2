@@ -46,4 +46,16 @@ public class DemoSecKillController {
         return RespBean.success();
     }
 
+    /**
+     * 验证 fanout 模式
+     *
+     * @return
+     */
+    @GetMapping("/mq/fanout")
+    @ResponseBody
+    public RespBean mqFanout() {
+        mqSender.sendByFanout("hello Fanout, are you broadcast?");
+        return RespBean.success();
+    }
+
 }
