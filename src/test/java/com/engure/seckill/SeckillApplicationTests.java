@@ -90,7 +90,7 @@ class SeckillApplicationTests {
         }
     }
 
-    @Autowired
+    /*@Autowired
     private DefaultRedisScript<Boolean> redisScript;
 
     @Test
@@ -111,6 +111,6 @@ class SeckillApplicationTests {
         } else {
             System.out.println("获取锁失败，请重试~");
         }
-    }
+    }*/
 
 }

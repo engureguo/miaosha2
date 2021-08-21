@@ -17,6 +17,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +63,9 @@ public class SeckillController implements InitializingBean {
 
     //内存标记，减少 redis 的访问
     private final Map<Long, Boolean> goodsIsEmptyMap = new HashMap<>();
+
+    @Autowired
+    private DefaultRedisScript<Long> redisScript;
 
     @RequestMapping("doSeckill")
     public String kill(User user, Long goodsId, Model model) {
@@ -122,14 +127,17 @@ public class SeckillController implements InitializingBean {
         }
 
         // redis预减库存
-        Long afterDecr = opsFV.decrement("seckill:goodsVo-" + goodsId);
+        // Long afterDecr = opsFV.decrement("seckill:goodsVo-" + goodsId);
+        // 使用 lua 脚本，逻辑更严谨
+        Long afterDecr = (Long) redisTemplate.execute(redisScript,
+                Collections.singletonList("seckill:goodsVo-" + goodsId));
         if (afterDecr == null)
             return RespBean.error(RespTypeEnum.GOODS_NOT_EXIST);//商品不存在
 
-        if (afterDecr < 0) {
+        if (afterDecr == 0) {
             goodsIsEmptyMap.put(goodsId, true);//标记该秒杀商品已经售罄
             opsFV.set("isSeckillGoodsEmpty:" + goodsId, "0");//标记该秒杀商品已经售空，在 查询秒杀结果时需要用到 OrderServiceImpl.qrySeckillOrder
-            opsFV.increment("seckill:goodsVo-" + goodsId);
+            //opsFV.increment("seckill:goodsVo-" + goodsId);
             return RespBean.error(RespTypeEnum.OUT_OF_STOCK);
         }
 
