@@ -12,9 +12,7 @@ import com.engure.seckill.vo.RespBean;
 import com.engure.seckill.vo.RespTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -62,6 +60,23 @@ public class SeckillOrderController {
         orderDetailVo.setGoodsVo(goodsVo);
 
         return RespBean.success(orderDetailVo);
+    }
+
+    /**
+     * 查询秒杀结果
+     *
+     * @param goodsId
+     * @param user
+     * @return
+     */
+    @GetMapping("/qryOrder")
+    @ResponseBody
+    public RespBean qryOrder(Long goodsId, User user) {
+        if (null == user) return RespBean.error(RespTypeEnum.SESSION_NOT_EXIST);
+
+        Long orderId = orderService.qrySeckillOrder(user.getId(), goodsId);
+
+        return RespBean.success(orderId);
     }
 
 }

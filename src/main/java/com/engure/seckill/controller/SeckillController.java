@@ -107,6 +107,7 @@ public class SeckillController implements InitializingBean {
         if (user == null)
             return RespBean.error(RespTypeEnum.SESSION_NOT_EXIST);
 
+        //使用“内存标记”，减少redis访问量
         if (goodsIsEmptyMap.get(goodsId)) {
             return RespBean.error(RespTypeEnum.OUT_OF_STOCK);
         }
@@ -127,6 +128,7 @@ public class SeckillController implements InitializingBean {
 
         if (afterDecr < 0) {
             goodsIsEmptyMap.put(goodsId, true);//标记该秒杀商品已经售罄
+            opsFV.set("isSeckillGoodsEmpty:" + goodsId, "0");//标记该秒杀商品已经售空，在 查询秒杀结果时需要用到 OrderServiceImpl.qrySeckillOrder
             opsFV.increment("seckill:goodsVo-" + goodsId);
             return RespBean.error(RespTypeEnum.OUT_OF_STOCK);
         }

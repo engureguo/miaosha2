@@ -74,8 +74,8 @@
             },
             type: 'POST',
             success: function (data) {
-                if (data.code == 200 || data.code == 500502) {  // 成功秒杀的，或者是二次秒杀的
-                    location.href = "/orderDetail.htm?orderId=" + data.data.id // 订单id
+                if (data.code == 200) {
+                    getResult(goodsId)
                 } else {
                     layer.msg(data.msg)
                 }
@@ -85,6 +85,41 @@
             }
         })
 
+    }
+
+    //通过goodsId轮询秒杀结果
+    function getResult(goodsId) {
+        g_showLoading()
+        $.ajax({
+            url: "/killOrder/qryOrder",
+            type: "GET",
+            data: {
+                goodsId: goodsId
+            },
+            success: function (data) {
+                if (data.code == 200) {
+                    //>0订单id，=0秒杀中，<0失败
+                    if (data.data > 0) {
+                        layer.confirm("恭喜你~ 秒杀成功，是否现在查看订单？", {btn: ['确定', '取消']}, function () {
+                            location.href = "/orderDetail.htm?orderId=" + data.data // 订单id
+                        }, function () {
+                            layer.close()
+                        })
+                    } else if (data.data < 0) {
+                        layer.msg("对不起，秒杀失败~")
+                    } else {
+                        setTimeout(() => {
+                            getResult(goodsId)
+                        }, 100)
+                    }
+                } else {
+                    layer.msg(data.msg)
+                }
+            },
+            error: function () {
+                layer.msg("秒杀失败, 服务端错误~")
+            }
+        })
     }
 
     function getDetails() {

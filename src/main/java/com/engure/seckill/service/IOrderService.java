@@ -23,4 +23,13 @@ public interface IOrderService extends IService<Order> {
      * @return
      */
     Order seckill(User user, GoodsVo goodsVo);
+
+    /**
+     * 查询秒杀订单
+     *
+     * @param id
+     * @param goodsId
+     * @return >0订单id，=0秒杀中，<0失败
+     */
+    Long qrySeckillOrder(Long id, Long goodsId);
 }

@@ -87,4 +87,26 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         return order;
     }
+
+    /**
+     * 查询秒杀订单
+     *
+     * @param userId
+     * @param goodsId
+     * @return >0订单id，=0秒杀中，<0失败
+     */
+    @Override
+    public Long qrySeckillOrder(Long userId, Long goodsId) {
+
+        SeckillOrder seckillOrder = seckillOrderService.getOne(new QueryWrapper<SeckillOrder>()
+                .eq("user_id", userId)
+                .eq("goods_id", goodsId));
+
+        if (null != seckillOrder) {
+            return seckillOrder.getOrderId();
+        } else if (redisTemplate.hasKey("isSeckillGoodsEmpty:" + goodsId)) {
+            return -1L;
+        } else
+            return 0L;
+    }
 }
