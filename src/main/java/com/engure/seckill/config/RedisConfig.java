@@ -2,8 +2,11 @@ package com.engure.seckill.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -27,5 +30,20 @@ public class RedisConfig {
 
         return redisTemplate;
     }
+
+    /**
+     * redis 执行 lua 脚本
+     *
+     * @return
+     */
+    @Bean
+    public DefaultRedisScript<Boolean> redisScript() {
+        DefaultRedisScript<Boolean> redisScript = new DefaultRedisScript<>();
+        //位置：与 application.yaml 同级目录
+        redisScript.setLocation(new ClassPathResource("lock.lua"));
+        redisScript.setResultType(Boolean.class);
+        return redisScript;
+    }
+
 
 }

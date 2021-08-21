@@ -34,8 +34,8 @@ import java.util.Map;
  * <p>
  * 压测： /seckill/doSeckill
  * QPS 1000 * 10:
- * 前        缓存优化和防止超卖后
- * 1339         2376
+ * 前        缓存优化和防止超卖后      预减库存、内存标记、消息队列
+ * 1339         2376                        4921
  */
 
 @Controller
