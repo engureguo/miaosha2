@@ -127,8 +127,19 @@ public class SeckillController implements InitializingBean {
         }
 
         // redis预减库存
-        // Long afterDecr = opsFV.decrement("seckill:goodsVo-" + goodsId);
+        /*Long afterDecr = opsFV.decrement("seckill:goodsVo-" + goodsId);
+        if (afterDecr == null)
+            return RespBean.error(RespTypeEnum.GOODS_NOT_EXIST);//商品不存在
+
+        if (afterDecr < 0) {
+            goodsIsEmptyMap.put(goodsId, true);//标记该秒杀商品已经售罄
+            opsFV.set("isSeckillGoodsEmpty:" + goodsId, "0");//标记该秒杀商品已经售空，在 查询秒杀结果时需要用到 OrderServiceImpl.qrySeckillOrder
+            opsFV.increment("seckill:goodsVo-" + goodsId);
+            return RespBean.error(RespTypeEnum.OUT_OF_STOCK);
+        }*/
+
         // 使用 lua 脚本，逻辑更严谨
+        // 使用客户端的 lua 脚本，网络传输增大，QPS降低
         Long afterDecr = (Long) redisTemplate.execute(redisScript,
                 Collections.singletonList("seckill:goodsVo-" + goodsId));
         if (afterDecr == null)
@@ -140,6 +151,7 @@ public class SeckillController implements InitializingBean {
             //opsFV.increment("seckill:goodsVo-" + goodsId);
             return RespBean.error(RespTypeEnum.OUT_OF_STOCK);
         }
+
 
         /*
         GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);//查找秒杀商品信息
