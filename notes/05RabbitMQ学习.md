@@ -6,6 +6,8 @@
 
 ### RabbitMQ 安装
 
+官网 https://www.rabbitmq.com/getstarted.html
+
 **安装**
 
 https://blog.csdn.net/u014045708/article/details/119078977

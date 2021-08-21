@@ -25,6 +25,7 @@ public enum RespTypeEnum {
     ORDER_NOT_EXIST(500601, "订单不存在"),
     //秒杀
     SECKILL_ERROR(500701, "秒杀失败，请重试~"),
+    GOODS_NOT_EXIST(500702, "商品不存在~"),
 
     ;
 

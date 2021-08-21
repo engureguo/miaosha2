@@ -3,11 +3,9 @@ package com.engure.seckill.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.engure.seckill.pojo.Order;
-import com.engure.seckill.pojo.SeckillOrder;
 import com.engure.seckill.pojo.User;
 import com.engure.seckill.service.IGoodsService;
 import com.engure.seckill.service.IOrderService;
-import com.engure.seckill.service.ISeckillOrderService;
 import com.engure.seckill.vo.GoodsVo;
 import com.engure.seckill.vo.OrderDetailVo;
 import com.engure.seckill.vo.RespBean;
