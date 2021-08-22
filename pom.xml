@@ -98,6 +98,13 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
+        <!--captcha组件-->
+        <dependency>
+            <groupId>com.github.whvcse</groupId>
+            <artifactId>easy-captcha</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
         <!--test组件-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

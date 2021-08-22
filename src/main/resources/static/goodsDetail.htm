@@ -38,10 +38,17 @@
                 <span id="seckillTip"></span>
             </td>
             <td>
-                <input type="hidden" name="goodsId" id="goodsId">
-                <button class="btn btn-primary btn-block" type="submit" id="buyButton"
-                        onclick="getSeckillPath()">立即秒杀
-                </button>
+                <div class="row">
+                    <div class="form-inline">
+                        <img id="captchaImg" width="130" height="32" onclick="refreshCaptcha()" alt="captcha img"
+                             style="display: none"/>
+                        <input id="captcha" class="form-control" style="display: none"/>
+                        <button class="btn btn-primary" type="submit" id="buyButton"
+                                onclick="getSeckillPath()">立即秒杀
+                        </button>
+                        <input type="hidden" name="goodsId" id="goodsId">
+                    </div>
+                </div>
             </td>
         </tr>
         <tr>
@@ -64,6 +71,12 @@
         getDetails();
     });
 
+    function refreshCaptcha() {
+        $('#captchaImg').show()
+        $('#captcha').show()
+        $('#captchaImg').attr("src", "/seckill/captcha?goodsId=" + $('#goodsId').val() + "&time=" + new Date().getTime())
+    }
+
     function getSeckillPath() {
         var goodsId = g_getQueryString("goodsId");
         //获取秒杀接口
@@ -71,13 +84,15 @@
             url: "/seckill/path",
             type: "POST",
             data: {
-                "goodsId": goodsId
+                "goodsId": goodsId,
+                "captcha": $('#captcha').val()
             },
             success: function (data) {
                 if (data.code == 200) {
                     doSeckill(goodsId, data.data)//获取秒杀路径后进行秒杀
                 } else {
-                    layer.msg(data.msg)
+                    layer.msg(data.msg + ", 请重新输入~")
+                    refreshCaptcha()
                 }
             },
             error: function () {
@@ -192,6 +207,7 @@
         if (killStatus == 1) {
             $("#buyButton").attr("disabled", false)
             $("#seckillTip").html("秒杀进行中")
+            refreshCaptcha()
             return
         }
 
@@ -212,11 +228,12 @@
         if (remainSeconds <= 0) {
             $("#buyButton").attr("disabled", false)
             $("#seckillTip").html("秒杀进行中")
+            refreshCaptcha()
             return
         }
 
         setTimeout(() => {
-            $("#remainSeconds").val(remainSeconds - 1)
+            $("#remainSeconds").text(remainSeconds - 1)
             $("#seckillTip").html('距离秒杀开始还有：' + (remainSeconds - 1) + "秒")
             sleepAndCountDown()
         }, 1000)

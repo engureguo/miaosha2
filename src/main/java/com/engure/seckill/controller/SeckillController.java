@@ -1,6 +1,7 @@
 package com.engure.seckill.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.engure.seckill.exception.GlobalException;
 import com.engure.seckill.pojo.Order;
 import com.engure.seckill.pojo.SeckillOrder;
 import com.engure.seckill.pojo.User;
@@ -13,6 +14,7 @@ import com.engure.seckill.vo.GoodsVo;
 import com.engure.seckill.vo.RespBean;
 import com.engure.seckill.vo.RespTypeEnum;
 import com.engure.seckill.vo.SeckillMessage;
+import com.wf.captcha.ArithmeticCaptcha;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +23,16 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 秒杀接口
@@ -183,18 +189,59 @@ public class SeckillController implements InitializingBean {
      *
      * @param user    用户信息
      * @param goodsId 可以不带goodsId参数或者goodsId为空，此时goodsId为null
+     * @param captcha 验证码
      * @return 返回个性化秒杀关键路径
      */
     @PostMapping(value = "/path")
     @ResponseBody
-    public RespBean getSeckillPath(User user, Long goodsId) {
+    public RespBean getSeckillPath(User user, Long goodsId, String captcha) {
 
-        if (null == user) return RespBean.error(RespTypeEnum.SESSION_NOT_EXIST);
+        if (null == user || null == goodsId || !StringUtils.hasLength(captcha))
+            return RespBean.error(RespTypeEnum.REQUEST_ILLEGAL);
+
+        //校验验证码
+        Integer check = orderService.checkCaptcha(user, goodsId, captcha);
+        if (check == 1)
+            return RespBean.error(RespTypeEnum.CAPTCHA_INVALID);
+        else if (check == 2) {
+            return RespBean.error(RespTypeEnum.CAPTCHA_ERROR);
+        }
 
         //获取秒杀路径
         String path = orderService.createPath(user, goodsId);
 
         return RespBean.success(path);
+    }
+
+    @GetMapping("/captcha")
+    public void captcha(User user, Long goodsId,
+                        HttpServletResponse response) {
+
+        if (null == user | goodsId == null)
+            throw new GlobalException(RespTypeEnum.REQUEST_ILLEGAL);
+
+        // 设置请求头为输出图片类型
+        response.setContentType("image/jpg");
+        response.setHeader("Pragma", "No-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+
+        // 算术类型
+        ArithmeticCaptcha captcha = new ArithmeticCaptcha(130, 32);
+        captcha.setLen(3);  // 几位数运算，默认是两位
+        captcha.getArithmeticString();  // 获取运算的公式：3+2=?
+        String res = captcha.text();// 获取运算的结果：5
+
+        redisTemplate.opsForValue().set("captcha:uid-" + user.getId() + ":gid-" + goodsId,
+                res, 60, TimeUnit.SECONDS);
+
+        try {
+            captcha.out(response.getOutputStream());  // 输出验证码
+        } catch (IOException e) {
+            //e.printStackTrace();
+            log.info("获取验证码失败~");
+        }
+
     }
 
     /**
