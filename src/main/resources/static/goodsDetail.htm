@@ -40,7 +40,7 @@
             <td>
                 <input type="hidden" name="goodsId" id="goodsId">
                 <button class="btn btn-primary btn-block" type="submit" id="buyButton"
-                        onclick="doSeckill()">立即秒杀
+                        onclick="getSeckillPath()">立即秒杀
                 </button>
             </td>
         </tr>
@@ -64,11 +64,31 @@
         getDetails();
     });
 
-    function doSeckill() {
-
+    function getSeckillPath() {
         var goodsId = g_getQueryString("goodsId");
+        //获取秒杀接口
         $.ajax({
-            url: '/seckill/doSeckill2/',
+            url: "/seckill/path",
+            type: "POST",
+            data: {
+                "goodsId": goodsId
+            },
+            success: function (data) {
+                if (data.code == 200) {
+                    doSeckill(goodsId, data.data)//获取秒杀路径后进行秒杀
+                } else {
+                    layer.msg(data.msg)
+                }
+            },
+            error: function () {
+                layer.msg("秒杀失败~")
+            }
+        })
+    }
+
+    function doSeckill(goodsId, path) {
+        $.ajax({
+            url: '/seckill/' + path + '/doSeckill3/',
             data: {
                 "goodsId": goodsId
             },

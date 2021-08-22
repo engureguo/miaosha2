@@ -12,7 +12,7 @@ public enum RespTypeEnum {
     ERROR(500, "服务端异常"),
     //登录
     LOGIN_ERROR(500201, "账号或密码错误"),
-    USER_NOT_REGISTERED(500202,   "用户未注册"),
+    USER_NOT_REGISTERED(500202, "用户未注册"),
     SESSION_NOT_EXIST(500203, "用户不存在"),
     LOGIN_SUCCESS(200, "登陆成功"),
     ALREADY_LOGIN(200, "已经登陆"),
@@ -26,6 +26,7 @@ public enum RespTypeEnum {
     //秒杀
     SECKILL_ERROR(500701, "秒杀失败，请重试~"),
     GOODS_NOT_EXIST(500702, "商品不存在~"),
+    SECKILL_PATH_ERROR(500703, "秒杀路径错误"),
 
     ;
 

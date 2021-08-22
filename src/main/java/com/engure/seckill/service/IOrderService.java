@@ -32,4 +32,23 @@ public interface IOrderService extends IService<Order> {
      * @return >0订单id，=0秒杀中，<0失败
      */
     Long qrySeckillOrder(Long id, Long goodsId);
+
+    /**
+     * 创建秒杀路径
+     *
+     * @param user    用户信息
+     * @param goodsId 商品信息
+     * @return
+     */
+    String createPath(User user, Long goodsId);
+
+    /**
+     * 检查秒杀路径
+     *
+     * @param user    非null
+     * @param goodsId 非null
+     * @param path    非null
+     * @return
+     */
+    Boolean checkPath(User user, Long goodsId, String path);
 }

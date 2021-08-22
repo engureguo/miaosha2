@@ -12,14 +12,19 @@ import com.engure.seckill.pojo.User;
 import com.engure.seckill.service.IOrderService;
 import com.engure.seckill.service.ISeckillGoodsService;
 import com.engure.seckill.service.ISeckillOrderService;
+import com.engure.seckill.utils.MD5Util;
+import com.engure.seckill.utils.UUIDUtil;
 import com.engure.seckill.vo.GoodsVo;
 import com.engure.seckill.vo.RespTypeEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -30,6 +35,7 @@ import java.util.Date;
  * @since 2021-08-17
  */
 @Service
+@Slf4j
 @Transactional
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
 
@@ -108,5 +114,56 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             return -1L;
         } else
             return 0L;
+    }
+
+    private static final String SEKILL_PATH_KEY = "asdga;sigwekgj";
+
+    /**
+     * 创建秒杀接口
+     *
+     * @param user    用户信息
+     * @param goodsId 商品信息
+     * @return 用户 user 对于商品 goodsId 的秒杀路径，具有时效性
+     */
+    @Override
+    public String createPath(User user, Long goodsId) {
+
+        if (null == goodsId) throw new GlobalException(RespTypeEnum.GOODS_NOT_EXIST);
+
+        String path = null;
+
+        ValueOperations opsFV = redisTemplate.opsForValue();
+        if (redisTemplate.hasKey("seckillPath:uid-" + user.getId() + ":gid-" + goodsId)) {
+            path = (String) opsFV.get("seckillPath:uid-" + user.getId() + ":gid-" + goodsId);
+        }
+        if (null == path) {
+            String uuid = UUIDUtil.uuid();
+            path = MD5Util.md5(uuid + SEKILL_PATH_KEY);
+            opsFV.set("seckillPath:uid-" + user.getId() + ":gid-" + goodsId, path,
+                    60, TimeUnit.SECONDS);
+        }
+
+        return path;
+    }
+
+    /**
+     * 检查秒杀接口
+     *
+     * @param user    非null
+     * @param goodsId 非null
+     * @param path    非null
+     * @return
+     */
+    @Override
+    public Boolean checkPath(User user, Long goodsId, String path) {
+
+        String pathFromRedis =
+                (String) redisTemplate.opsForValue().get("seckillPath:uid-" + user.getId() + ":gid-" + goodsId);
+
+        if (pathFromRedis == null) {
+            return false;
+        }
+
+        return path.equals(pathFromRedis);
     }
 }

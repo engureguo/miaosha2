@@ -13,6 +13,7 @@ import com.engure.seckill.vo.GoodsVo;
 import com.engure.seckill.vo.RespBean;
 import com.engure.seckill.vo.RespTypeEnum;
 import com.engure.seckill.vo.SeckillMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,10 +21,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +40,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/seckill")
+@Slf4j
 public class SeckillController implements InitializingBean {
 // 实现InitializingBean接口：Interface to be implemented by beans that need to react once all their properties have been set
 // bean初始化
@@ -100,6 +99,7 @@ public class SeckillController implements InitializingBean {
 
     /**
      * 缓存优化，防止超卖的秒杀接口
+     * redis预减库存（lua和原来的）、内存标记、消息队列
      *
      * @param user
      * @param goodsId
@@ -177,6 +177,89 @@ public class SeckillController implements InitializingBean {
 
         return RespBean.success(0);//“快速”将结果返回给用户
     }
+
+    /**
+     * 秒杀前，获取秒杀路径
+     *
+     * @param user    用户信息
+     * @param goodsId 可以不带goodsId参数或者goodsId为空，此时goodsId为null
+     * @return 返回个性化秒杀关键路径
+     */
+    @PostMapping(value = "/path")
+    @ResponseBody
+    public RespBean getSeckillPath(User user, Long goodsId) {
+
+        if (null == user) return RespBean.error(RespTypeEnum.SESSION_NOT_EXIST);
+
+        //获取秒杀路径
+        String path = orderService.createPath(user, goodsId);
+
+        return RespBean.success(path);
+    }
+
+    /**
+     * 秒杀接口，在 kill2() 的基础上继续完善
+     * 判断秒杀路径
+     *
+     * @param path    秒杀路径，可能为null
+     * @param user    用户信息
+     * @param goodsId 必须携带 “goodsId=” 部分，可能为null
+     * @return
+     */
+    @PostMapping(value = "/{path}/doSeckill3")
+    @ResponseBody
+    public RespBean kill3(@PathVariable String path,
+                          User user, @RequestParam("goodsId") Long goodsId) {
+
+        if (user == null)
+            return RespBean.error(RespTypeEnum.SESSION_NOT_EXIST);
+
+        if (goodsId == null)
+            return RespBean.error(RespTypeEnum.GOODS_NOT_EXIST);
+
+        if (null == path)
+            return RespBean.error(RespTypeEnum.SECKILL_PATH_ERROR);
+
+        //检查秒杀路径 path 是否是用户的
+        Boolean rightPath = orderService.checkPath(user, goodsId, path);
+        if (!rightPath)
+            return RespBean.error(RespTypeEnum.SECKILL_PATH_ERROR);
+
+        //使用“内存标记”，减少redis访问量
+        if (goodsIsEmptyMap.get(goodsId)) {
+            return RespBean.error(RespTypeEnum.OUT_OF_STOCK);
+        }
+
+        ValueOperations opsFV = redisTemplate.opsForValue();
+
+        //从缓存中取“可能买过的记录”，可以拦截大部分的“二次购买”
+        Object orderInfo = opsFV.get("seckOrder:userId-" + user.getId()
+                + ":goodsId-" + goodsId);
+        if (null != orderInfo) {
+            return RespBean.error(RespTypeEnum.REPEATED_BUY_ERROR);
+        }
+
+        // 使用 lua 脚本，逻辑更严谨
+        // 使用客户端的 lua 脚本，网络传输增大，QPS降低
+        Long afterDecr = (Long) redisTemplate.execute(redisScript,
+                Collections.singletonList("seckill:goodsVo-" + goodsId));
+        if (afterDecr == null)
+            return RespBean.error(RespTypeEnum.GOODS_NOT_EXIST);//商品不存在
+
+        if (afterDecr == 0) {
+            goodsIsEmptyMap.put(goodsId, true);//标记该秒杀商品已经售罄
+            opsFV.set("isSeckillGoodsEmpty:" + goodsId, "0");//标记该秒杀商品已经售空，在 查询秒杀结果时需要用到 OrderServiceImpl.qrySeckillOrder
+            //opsFV.increment("seckill:goodsVo-" + goodsId);
+            return RespBean.error(RespTypeEnum.OUT_OF_STOCK);
+        }
+
+        //将秒杀信息放入消息队列
+        SeckillMessage seckillMessage = new SeckillMessage(user, goodsId);
+        mqSender.sendSeckillMessage(JsonUtil.object2JsonStr(seckillMessage));
+
+        return RespBean.success(0);//“快速”将结果返回给用户
+    }
+
 
     /**
      * 项目启动，将秒杀商品信息存入 redis，主要是 商品id和库存量
