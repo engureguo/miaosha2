@@ -1,6 +1,7 @@
 package com.engure.seckill.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.engure.seckill.config.AccessLimit;
 import com.engure.seckill.exception.GlobalException;
 import com.engure.seckill.pojo.Order;
 import com.engure.seckill.pojo.SeckillOrder;
@@ -193,6 +194,7 @@ public class SeckillController implements InitializingBean {
      * @param captcha 验证码
      * @return 返回个性化秒杀关键路径
      */
+    @AccessLimit(seconds = 5, count = 5, needLogin = true)
     @PostMapping(value = "/path")
     @ResponseBody
     public RespBean getSeckillPath(User user, Long goodsId, String captcha,
@@ -201,7 +203,8 @@ public class SeckillController implements InitializingBean {
         if (null == user || null == goodsId || !StringUtils.hasLength(captcha))
             return RespBean.error(RespTypeEnum.REQUEST_ILLEGAL);
 
-        String key = request.getRequestURI() + ":uid-" + user;
+        //使用 @AccessLimit 进行拦截判断：更加通用
+        /*String key = request.getRequestURI() + ":uid-" + user.getId();
 
         Integer count = (Integer) redisTemplate.opsForValue().get(key);
         if (null == count) {
@@ -209,7 +212,7 @@ public class SeckillController implements InitializingBean {
         } else if (count < 5) {
             redisTemplate.opsForValue().increment(key);//自增时变量失效性不受影响
         } else
-            return RespBean.error(RespTypeEnum.ACCESS_LIMIT_REACHED);
+            return RespBean.error(RespTypeEnum.ACCESS_LIMIT_REACHED);*/
 
         //校验验证码
         Integer check = orderService.checkCaptcha(user, goodsId, captcha);

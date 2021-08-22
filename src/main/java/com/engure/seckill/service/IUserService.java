@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author engure
@@ -20,6 +20,6 @@ public interface IUserService extends IService<User> {
 
     RespBean doLogin(LoginVO vo, HttpServletRequest request, HttpServletResponse response);
 
-    User getUserInfoByTicket(String ticket);
+    User getUserInfoByTicket(HttpServletRequest request, HttpServletResponse response, String ticket);
 
 }

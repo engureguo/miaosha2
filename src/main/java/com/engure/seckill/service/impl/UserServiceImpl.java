@@ -62,17 +62,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         CookieUtil.setCookie(request, response, "user_ticket", ticket);
         //request.getSession().setAttribute(ticket, user);
         // 存入redis
+        // 另外每次从 redis 中取 User 时，都要增长访问 user 的存活时间
         redisTemplate.opsForValue().set("user_ticket:" + ticket, user, 1, TimeUnit.HOURS);
 
         return RespBean.success(ticket);//返回ticket，后边要用
     }
 
+    /**
+     * 根据用户的 ticket，从 redis 中获取可能的登录信息。
+     * </p>
+     * 用户成功登陆后会将凭证写入 redis。
+     * </p>
+     * 注意：获取信息时，如果用户信息可以获取到，需要增加它的寿命
+     *
+     * @param request
+     * @param response
+     * @param ticket
+     * @return
+     */
     @Override
-    public User getUserInfoByTicket(String ticket) {
+    public User getUserInfoByTicket(HttpServletRequest request, HttpServletResponse response, String ticket) {
 
         if (!StringUtils.hasLength(ticket))
             return null;
 
-        return (User) redisTemplate.opsForValue().get("user_ticket:" + ticket);
+        User user = (User) redisTemplate.opsForValue().get("user_ticket:" + ticket);
+
+        if (user != null) {
+            redisTemplate.opsForValue().set("user_ticket:" + ticket, user, 1, TimeUnit.HOURS);
+        }
+
+        return user;
     }
 }

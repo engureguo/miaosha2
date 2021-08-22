@@ -1,5 +1,6 @@
 package com.engure.seckill.config.argresolver;
 
+import com.engure.seckill.config.UserContext;
 import com.engure.seckill.pojo.User;
 import com.engure.seckill.service.IUserService;
 import com.engure.seckill.utils.CookieUtil;
@@ -30,13 +31,6 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-
-        String ticket = CookieUtil.getCookieValue(request, "user_ticket");
-
-        if (StringUtils.hasLength(ticket)) {
-            return userService.getUserInfoByTicket(ticket);
-        }
-        return null;
+        return UserContext.get();
     }
 }

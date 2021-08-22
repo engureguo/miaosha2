@@ -1,9 +1,15 @@
 package com.engure.seckill.utils;
 
 import com.engure.seckill.pojo.User;
+import com.engure.seckill.service.IUserService;
 import com.engure.seckill.vo.RespBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
