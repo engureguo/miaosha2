@@ -30,6 +30,7 @@ public enum RespTypeEnum {
     SECKILL_ERROR(500701, "秒杀失败，请重试~"),
     GOODS_NOT_EXIST(500702, "商品不存在~"),
     SECKILL_PATH_ERROR(500703, "秒杀路径错误"),
+    ACCESS_LIMIT_REACHED(500703, "访问过于频繁，请稍后再试~"),
 
     ;
 

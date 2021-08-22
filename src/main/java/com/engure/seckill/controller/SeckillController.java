@@ -26,6 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
@@ -194,10 +195,21 @@ public class SeckillController implements InitializingBean {
      */
     @PostMapping(value = "/path")
     @ResponseBody
-    public RespBean getSeckillPath(User user, Long goodsId, String captcha) {
+    public RespBean getSeckillPath(User user, Long goodsId, String captcha,
+                                   HttpServletRequest request) {
 
         if (null == user || null == goodsId || !StringUtils.hasLength(captcha))
             return RespBean.error(RespTypeEnum.REQUEST_ILLEGAL);
+
+        String key = request.getRequestURI() + ":uid-" + user;
+
+        Integer count = (Integer) redisTemplate.opsForValue().get(key);
+        if (null == count) {
+            redisTemplate.opsForValue().set(key, 0, 5, TimeUnit.SECONDS);
+        } else if (count < 5) {
+            redisTemplate.opsForValue().increment(key);//自增时变量失效性不受影响
+        } else
+            return RespBean.error(RespTypeEnum.ACCESS_LIMIT_REACHED);
 
         //校验验证码
         Integer check = orderService.checkCaptcha(user, goodsId, captcha);
