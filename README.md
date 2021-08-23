@@ -2,7 +2,7 @@
 
 简单的秒杀系统
 
-https://www.bilibili.com/video/BV1HL411H77i
+
 
 ---
 
@@ -15,9 +15,11 @@ https://www.bilibili.com/video/BV1HL411H77i
   4. [页面优化](notes/05RabbitMQ学习.md)
   5. [RabbitMQ学习](notes/05RabbitMQ学习.md)、[服务接口优化](notes/06服务优化.md)
   6. [安全优化](notes/07安全优化.md)
-  7. [主流的秒杀方案](#7%E4%B8%BB%E6%B5%81%E7%9A%84%E7%A7%92%E6%9D%80%E6%96%B9%E6%A1%88)
-  8. [总结](#8%E6%80%BB%E7%BB%93)
-
+  7. [主流的秒杀方案](#7、主流的秒杀方案)
+  8. [总结](#8、总结)
+- 其他
+  1. sql文件：miaosha.sql
+  2. 代码生成项目：https://github.com/engureguo/use-mybatis-plus-generator
 
 
 
