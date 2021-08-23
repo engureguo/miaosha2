@@ -15,8 +15,8 @@
   4. [页面优化](notes/05RabbitMQ学习.md)
   5. [RabbitMQ学习](notes/05RabbitMQ学习.md)、[服务接口优化](notes/06服务优化.md)
   6. [安全优化](notes/07安全优化.md)
-  7. [主流的秒杀方案](https://github.com/engureguo/seckill#7%E4%B8%BB%E6%B5%81%E7%9A%84%E7%A7%92%E6%9D%80%E6%96%B9%E6%A1%88)
-  8. [总结](https://github.com/engureguo/seckill#8%E6%80%BB%E7%BB%93)
+  7. [主流的秒杀方案](#7%E4%B8%BB%E6%B5%81%E7%9A%84%E7%A7%92%E6%9D%80%E6%96%B9%E6%A1%88)
+  8. [总结](#8%E6%80%BB%E7%BB%93)
 
 
 
